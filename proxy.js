@@ -37,6 +37,7 @@ async function replaceText(resp){
     text=text.replace(/<link rel="shortcut icon" href="\/\/telegram\.org\/favicon\.ico\?\d+" type="image\/x-icon" \/>/g, ICON)
     text=text.replace(/\\?\/\\?\/telegram.org\\?\//g, `${BASE_URL}/tgorg/`)
     text=text.replace(/\\?\/\\?\/cdn(\d).telesco.pe\\?\//g, `${BASE_URL}/ts/$1/`)
+    text=text.replace(/t.me\/[A-z0-9\_]{5,}\//g, `${BASE_URL}/`)
     text=text.replace(/<div class="tgme_channel_download_telegram_bottom">to view and join the conversation<\/div>/g, "")
     text=text.replace(/Download Telegram/g, "Join Channel")
     return new Response(text, {
