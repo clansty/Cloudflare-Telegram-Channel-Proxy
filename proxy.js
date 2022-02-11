@@ -12,6 +12,9 @@ const ICON = '<link rel="icon" type="image/webp" href="https://cdn.lwqwq.com/pic
                 div.tgme_header_info {
                   margin-right: 0 !important;
                 }
+                div.tgme_footer {
+                  display: none;
+                }
               </style>`
 
 const CHANNEL_URL = `https://t.me/s/${USERNAME}`
