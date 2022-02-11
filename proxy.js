@@ -32,9 +32,13 @@ async function replaceText(resp){
     let text = await resp.text()
     text=text.replace(/<a class="tgme_channel_join_telegram" href="\/\/telegram\.org\/dl[\?a-z0-9_=]*">/g, 
         `<a class="tgme_channel_join_telegram" href="https://t.me/${USERNAME}">`)
+    text=text.replace(/<a class="tgme_channel_download_telegram" href="\/\/telegram\.org\/dl[\?a-z0-9_=]*">/g, 
+        `<a class="tgme_channel_download_telegram" href="https://t.me/${USERNAME}">`)
     text=text.replace(/<link rel="shortcut icon" href="\/\/telegram\.org\/favicon\.ico\?\d+" type="image\/x-icon" \/>/g, ICON)
     text=text.replace(/\\?\/\\?\/telegram.org\\?\//g, `${BASE_URL}/tgorg/`)
     text=text.replace(/\\?\/\\?\/cdn(\d).telesco.pe\\?\//g, `${BASE_URL}/ts/$1/`)
+    text=text.replace(/<div class="tgme_channel_download_telegram_bottom">to view and join the conversation<\/div>/g, "")
+    text=text.replace(/Download Telegram/g, "Join Channel")
     return new Response(text, {
         headers: { "content-type": ct }
     })
