@@ -46,6 +46,7 @@ async function replaceText(resp){
 
 async function handleRequest(request) {
     var u = new URL(request.url);
+    var reg = /\/[0-9]*$/
     // 统计节点
     if(u.pathname==='/v/'){
       return new Response('true',{
@@ -60,6 +61,15 @@ async function handleRequest(request) {
       const result = await fetch(req)
       return replaceText(result)
     }
+    // 消息定位
+    if(reg.test(u.pathname)){
+      const req = new Request(CHANNEL_URL+u.pathname, {
+        method: 'GET',
+      })
+      const result = await fetch(req)
+      return replaceText(result)
+    }
+    
 
     const pathParts = u.pathname.split('/')
     pathParts.shift()
