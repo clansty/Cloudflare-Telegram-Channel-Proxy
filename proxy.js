@@ -12,6 +12,9 @@ const ICON = '<link rel="icon" type="image/webp" href="https://cdn.lwqwq.com/pic
                 div.tgme_header_info {
                   margin-right: 0 !important;
                 }
+                div.tgme_footer {
+                  display: none;
+                }
               </style>`
 
 const CHANNEL_URL = `https://t.me/s/${USERNAME}`
@@ -29,9 +32,14 @@ async function replaceText(resp){
     let text = await resp.text()
     text=text.replace(/<a class="tgme_channel_join_telegram" href="\/\/telegram\.org\/dl[\?a-z0-9_=]*">/g, 
         `<a class="tgme_channel_join_telegram" href="https://t.me/${USERNAME}">`)
+    text=text.replace(/<a class="tgme_channel_download_telegram" href="\/\/telegram\.org\/dl[\?a-z0-9_=]*">/g, 
+        `<a class="tgme_channel_download_telegram" href="https://t.me/${USERNAME}">`)
     text=text.replace(/<link rel="shortcut icon" href="\/\/telegram\.org\/favicon\.ico\?\d+" type="image\/x-icon" \/>/g, ICON)
     text=text.replace(/\\?\/\\?\/telegram.org\\?\//g, `${BASE_URL}/tgorg/`)
     text=text.replace(/\\?\/\\?\/cdn(\d).telesco.pe\\?\//g, `${BASE_URL}/ts/$1/`)
+    text=text.replace(/t.me\/[A-z0-9\_]{5,}\//g, `${BASE_URL}/`)
+    text=text.replace(/<div class="tgme_channel_download_telegram_bottom">to view and join the conversation<\/div>/g, "")
+    text=text.replace(/Download Telegram/g, "Join Channel")
     return new Response(text, {
         headers: { "content-type": ct }
     })
@@ -39,6 +47,7 @@ async function replaceText(resp){
 
 async function handleRequest(request) {
     var u = new URL(request.url);
+    var reg = /\/[0-9]*$/
     // 统计节点
     if(u.pathname==='/v/'){
       return new Response('true',{
@@ -53,6 +62,15 @@ async function handleRequest(request) {
       const result = await fetch(req)
       return replaceText(result)
     }
+    // 消息定位
+    if(reg.test(u.pathname)){
+      const req = new Request(CHANNEL_URL+u.pathname, {
+        method: 'GET',
+      })
+      const result = await fetch(req)
+      return replaceText(result)
+    }
+    
 
     const pathParts = u.pathname.split('/')
     pathParts.shift()
