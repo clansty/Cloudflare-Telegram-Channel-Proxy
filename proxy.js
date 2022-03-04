@@ -32,14 +32,27 @@ async function replaceText(resp){
     let text = await resp.text()
     text=text.replace(/<a class="tgme_channel_join_telegram" href="\/\/telegram\.org\/dl[\?a-z0-9_=]*">/g, 
         `<a class="tgme_channel_join_telegram" href="https://t.me/${USERNAME}">`)
-    text=text.replace(/<a class="tgme_channel_download_telegram" href="\/\/telegram\.org\/dl[\?a-z0-9_=]*">/g, 
+      .replace(/<a class="tgme_channel_download_telegram" href="\/\/telegram\.org\/dl[\?a-z0-9_=]*">/g, 
         `<a class="tgme_channel_download_telegram" href="https://t.me/${USERNAME}">`)
-    text=text.replace(/<link rel="shortcut icon" href="\/\/telegram\.org\/favicon\.ico\?\d+" type="image\/x-icon" \/>/g, ICON)
-    text=text.replace(/\\?\/\\?\/telegram.org\\?\//g, `${BASE_URL}/tgorg/`)
-    text=text.replace(/\\?\/\\?\/cdn(\d).telesco.pe\\?\//g, `${BASE_URL}/ts/$1/`)
-    text=text.replace(/t.me\/[A-z0-9\_]{5,}\//g, `${BASE_URL}/`)
-    text=text.replace(/<div class="tgme_channel_download_telegram_bottom">to view and join the conversation<\/div>/g, "")
-    text=text.replace(/Download Telegram/g, "Join Channel")
+      .replace(/<link rel="shortcut icon" href="\/\/telegram\.org\/favicon\.ico\?\d+" type="image\/x-icon" \/>/g, ICON)
+      .replace(/\\?\/\\?\/telegram.org\\?\//g, `${BASE_URL}/tgorg/`)
+      .replace(/\\?\/\\?\/cdn(\d).telesco.pe\\?\//g, `${BASE_URL}/ts/$1/`)
+      .replace(/t.me\/[A-z0-9\_]{5,}\//g, `${BASE_URL}/`)
+      .replace(/<div class="tgme_channel_download_telegram_bottom">to view and join the conversation<\/div>/g, "")
+      .replace(/Download Telegram/g, "Join Channel")
+    return new Response(text, {
+        headers: { "content-type": ct }
+    })
+}
+
+async function replaceTextForTgOrg(resp){
+    let ct = resp.headers.get('content-type')
+    if(!ct)return resp
+    ct=ct.toLowerCase()
+    if(!(ct.includes('text/css')))return resp
+    let text = await resp.text()
+    text=text.replace(/url\(\//g, `url(${BASE_URL}/tgorg/`)
+      .replace(/url\('\//g, `url('${BASE_URL}/tgorg/`)
     return new Response(text, {
         headers: { "content-type": ct }
     })
@@ -82,7 +95,7 @@ async function handleRequest(request) {
         method: 'GET',
       })
       const result = await fetch(req)
-      return result
+      return replaceTextForTgOrg(result)
     }
     // telescope 的节点
     if(host==='ts'){
