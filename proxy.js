@@ -3,7 +3,7 @@ const USERNAME = 'Clanstty'
 // 访问这个 worker 的 URL，可以是初始的 .workers.dev 的域名。注意不是你想要嵌入到的网页的地址
 const BASE_URL = '//tg-channel.clansty.workers.dev'
 // 在这里你还可以注入一些 CSS 和需要的头部信息
-const ICON = '<link rel="icon" type="image/webp" href="https://cdn.lwqwq.com/pic/41329_SaVJ3LWa.webp"/>' +
+const icon = emb => '<link rel="icon" type="image/webp" href="https://cdn.lwqwq.com/pic/tgChannelAvatar.webp"/>' +
              '<base target="_blank" />' + 
              `<style>
                 div.tgme_header_search {
@@ -15,6 +15,15 @@ const ICON = '<link rel="icon" type="image/webp" href="https://cdn.lwqwq.com/pic
                 div.tgme_footer {
                   display: none;
                 }
+                div.tgme_background_pattern {
+                  opacity: 0.075 !important;
+                }
+                #tgme_background {
+                  display: none;
+                }
+                a.tgme_header_link {
+                  ${emb?'margin-left: 34px;':''}
+                }
               </style>`
 
 const CHANNEL_URL = `https://t.me/s/${USERNAME}`
@@ -23,7 +32,7 @@ addEventListener('fetch', event => {
     event.respondWith(handleRequest(event.request))
 })
 
-async function replaceText(resp){
+async function replaceText(resp, isEmbedded){
     let ct = resp.headers.get('content-type')
     console.log(ct)
     if(!ct)return resp
@@ -34,7 +43,8 @@ async function replaceText(resp){
         `<a class="tgme_channel_join_telegram" href="https://t.me/${USERNAME}">`)
       .replace(/<a class="tgme_channel_download_telegram" href="\/\/telegram\.org\/dl[\?a-z0-9_=]*">/g, 
         `<a class="tgme_channel_download_telegram" href="https://t.me/${USERNAME}">`)
-      .replace(/<link rel="shortcut icon" href="\/\/telegram\.org\/favicon\.ico\?\d+" type="image\/x-icon" \/>/g, ICON)
+      .replace(/<link rel="icon" [\w\+=\?\/\s_\."]+>/, icon(isEmbedded))
+      .replace(/<link rel="icon" [\w\+=\?\/\s_\-\."]+>/g, '')
       .replace(/\\?\/\\?\/telegram.org\\?\//g, `${BASE_URL}/tgorg/`)
       .replace(/\\?\/\\?\/cdn(\d).telesco.pe\\?\//g, `${BASE_URL}/ts/$1/`)
       .replace(/t.me\/[A-z0-9\_]{5,}\//g, `${BASE_URL}/`)
@@ -60,6 +70,7 @@ async function replaceTextForTgOrg(resp){
 
 async function handleRequest(request) {
     var u = new URL(request.url);
+    const isEmbedded = u.search.includes('emb');
     var reg = /\/[0-9]*$/
     // 统计节点
     if(u.pathname==='/v/'){
@@ -73,7 +84,7 @@ async function handleRequest(request) {
         method: 'GET',
       })
       const result = await fetch(req)
-      return replaceText(result)
+      return replaceText(result, isEmbedded)
     }
     // 消息定位
     if(reg.test(u.pathname)){
